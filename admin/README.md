@@ -34,6 +34,7 @@ admin/
 │   ├── Controller.php               ← Base controller (view, redirect, auth)
 │   └── Router.php                   ← Simple path router
 ├── public/
+│   ├── productImages                ← Store Product Images here
 │   ├── index.php                    ← Front controller (entry point)
 │   └── .htaccess                    ← Route all requests to index.php
 └── .htaccess                        ← Redirect root to public/

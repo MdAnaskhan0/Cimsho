@@ -84,5 +84,19 @@ $router->post('/settings/shop/update', 'SettingsController', 'updateShop');
 $router->get('/settings/site', 'SettingsController', 'site');
 $router->post('/settings/site/update', 'SettingsController', 'updateSite');
 
+// User/Customer routes
+$router->get('/users', 'UserController', 'index');
+$router->get('/users/view/{id}', 'UserController', 'viewUser');
+$router->post('/users/toggle-status/{id}', 'UserController', 'toggleStatus');
+$router->post('/users/update-role', 'UserController', 'updateRole');
+
+// Order routes
+$router->get('/orders', 'OrderController', 'index');
+$router->get('/orders/pending', 'OrderController', 'pending');
+$router->get('/orders/shipped', 'OrderController', 'shipped');
+$router->get('/orders/show/{id}', 'OrderController', 'show');
+$router->post('/orders/update-status', 'OrderController', 'updateStatus');
+$router->post('/orders/update-tracking', 'OrderController', 'updateTracking');
+
 // ---- Dispatch ----
 $router->dispatch();
