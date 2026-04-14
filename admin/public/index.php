@@ -73,5 +73,16 @@ $router->post('/coupons/delete/{id}', 'CouponController', 'delete');
 $router->post('/coupons/toggle-status/{id}', 'CouponController', 'toggleStatus');
 $router->get('/coupons/generate-code', 'CouponController', 'generateCode');
 
+// Delivery Settings routes
+$router->get('/settings/delivery', 'DeliverySettingsController', 'index');
+$router->post('/settings/delivery/update', 'DeliverySettingsController', 'update');
+$router->post('/settings/delivery/calculate-preview', 'DeliverySettingsController', 'calculatePreview');
+
+// Settings routes
+$router->get('/settings/shop', 'SettingsController', 'shop');
+$router->post('/settings/shop/update', 'SettingsController', 'updateShop');
+$router->get('/settings/site', 'SettingsController', 'site');
+$router->post('/settings/site/update', 'SettingsController', 'updateSite');
+
 // ---- Dispatch ----
 $router->dispatch();
