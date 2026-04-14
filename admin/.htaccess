@@ -1,0 +1,6 @@
+Options -Indexes
+RewriteEngine On
+
+# Redirect to public/ if hitting root
+RewriteCond %{REQUEST_URI} !^/nadim/admin/public/
+RewriteRule ^(.*)$ public/$1 [L]
