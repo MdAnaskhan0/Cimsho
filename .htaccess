@@ -1,4 +1,10 @@
 Options -Indexes
 RewriteEngine On
-RewriteCond %{REQUEST_URI} !^/cimsho/public/
-RewriteRule ^(.*)$ public/$1 [L]
+
+# Admin goes to admin/public
+RewriteRule ^admin/(.*)$ admin/public/$1 [L,QSA]
+
+# Main app
+RewriteCond %{REQUEST_URI} !^/test/admin/
+RewriteRule ^$ public/ [L]
+RewriteRule (.*) public/$1 [L]

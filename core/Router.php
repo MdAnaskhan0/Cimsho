@@ -1,44 +1,96 @@
 <?php
-class Router {
+class Router
+{
     private array $routes = [];
 
-    public function get(string $p, string $c, string $m): void  { $this->routes['GET'][$p]  = [$c,$m]; }
-    public function post(string $p, string $c, string $m): void { $this->routes['POST'][$p] = [$c,$m]; }
+    public function get(string $path, string $controller, string $method): void
+    {
+        $this->routes['GET'][$path] = [
+            'controller' => $controller,
+            'method' => $method
+        ];
+    }
 
-    public function dispatch(): void {
+    public function post(string $path, string $controller, string $method): void
+    {
+        $this->routes['POST'][$path] = [
+            'controller' => $controller,
+            'method' => $method
+        ];
+    }
+
+    public function dispatch(): void
+    {
         $method = $_SERVER['REQUEST_METHOD'];
-        $uri    = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        $base   = parse_url(APP_URL, PHP_URL_PATH);
-        $path   = '/'.ltrim(str_replace($base,'',$uri),'/');
-        if($path===''||$path==='/index.php') $path='/';
 
-        // Exact match
-        if(isset($this->routes[$method][$path])){
-            $this->run(...$this->routes[$method][$path]);
+        // 🔥 FIXED URI HANDLING
+        // $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+        // Remove base path (like /cimsho/public)
+        $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
+        $basePath   = dirname($scriptName);
+
+
+        // ********************** Solve the Problem ***************************
+        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+        // Auto-detect project folder (like /cimsho)
+        $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
+        $projectPath = dirname(dirname($scriptName)); // go up from /public/index.php
+
+        if ($projectPath !== '/' && strpos($uri, $projectPath) === 0) {
+            $uri = substr($uri, strlen($projectPath));
+        }
+
+        $uri = '/' . trim($uri, '/');
+        $uri = $uri === '//' ? '/' : $uri;
+        // *************************************************
+
+        if ($basePath !== '/' && strpos($uri, $basePath) === 0) {
+            $uri = substr($uri, strlen($basePath));
+        }
+
+        $uri = '/' . trim($uri, '/');
+        $uri = $uri === '//' ? '/' : $uri;
+
+        // ── Exact match ─────────────────────────────
+        if (isset($this->routes[$method][$uri])) {
+            $this->callRoute($this->routes[$method][$uri], []);
             return;
         }
 
-        // Pattern match (for :id params)
-        foreach($this->routes[$method]??[] as $route=>$handler){
-            $pattern = preg_replace('#:([a-z_]+)#','([^/]+)',$route);
-            if(preg_match('#^'.$pattern.'$#',$path,$m)){
-                array_shift($m);
-                $_GET['_params'] = $m;
-                $this->run(...$handler);
+        // ── Pattern match (e.g. /product/123) ───────
+        foreach ($this->routes[$method] ?? [] as $route => $action) {
+            $pattern = preg_replace('/\{[^}]+\}/', '([^/]+)', $route);
+
+            if (preg_match('#^' . $pattern . '$#', $uri, $matches)) {
+                array_shift($matches);
+                $this->callRoute($action, $matches);
                 return;
             }
         }
 
+        // ── 404 ─────────────────────────────────────
         http_response_code(404);
-        require __DIR__.'/../app/views/404.php';
+        require APP_ROOT . '/app/views/partials/404.php';
     }
 
-    private function run(string $ctrl, string $action): void {
-        $file = __DIR__.'/../app/controllers/'.$ctrl.'.php';
-        if(!file_exists($file)){ http_response_code(404); die("Controller not found: $ctrl"); }
-        require_once $file;
-        $obj = new $ctrl();
-        $params = $_GET['_params'] ?? [];
-        $obj->$action(...$params);
+    private function callRoute(array $action, array $params): void
+    {
+        $controllerFile = APP_ROOT . '/app/controllers/' . $action['controller'] . '.php';
+
+        if (!file_exists($controllerFile)) {
+            die('Controller not found: ' . $action['controller']);
+        }
+
+        require_once $controllerFile;
+
+        $controller = new $action['controller']();
+
+        if (!method_exists($controller, $action['method'])) {
+            die('Method not found: ' . $action['method']);
+        }
+
+        $controller->{$action['method']}(...$params);
     }
 }

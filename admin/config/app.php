@@ -1,6 +1,6 @@
 <?php
 define('APP_NAME', 'Cimsho Admin');
-define('APP_URL', 'http://localhost/nadim/admin');
+define('APP_URL', 'http://localhost/test/admin');
 define('APP_VERSION', '1.0.0');
 define('SESSION_TIMEOUT', 3600); // 1 hour
 

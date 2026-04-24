@@ -1,10 +1,26 @@
 <?php
-abstract class Model {
+class Model {
     protected PDO $db;
-    public function __construct() { $this->db = Database::getInstance(); }
-    protected function query(string $sql, array $p = []): PDOStatement { $s=$this->db->prepare($sql);$s->execute($p);return $s; }
-    protected function fetchOne(string $sql, array $p = []): ?array { $r=$this->query($sql,$p)->fetch(); return $r?:null; }
-    protected function fetchAll(string $sql, array $p = []): array { return $this->query($sql,$p)->fetchAll(); }
-    protected function execute(string $sql, array $p = []): bool { return $this->query($sql,$p)->rowCount()>0; }
-    protected function lastId(): string { return $this->db->lastInsertId(); }
+
+    public function __construct() {
+        $this->db = Database::getInstance();
+    }
+
+    protected function query(string $sql, array $params = []): PDOStatement {
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt;
+    }
+
+    protected function fetchAll(string $sql, array $params = []): array {
+        return $this->query($sql, $params)->fetchAll();
+    }
+
+    protected function fetchOne(string $sql, array $params = []): mixed {
+        return $this->query($sql, $params)->fetch();
+    }
+
+    protected function lastInsertId(): string {
+        return $this->db->lastInsertId();
+    }
 }
