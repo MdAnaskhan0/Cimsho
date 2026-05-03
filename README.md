@@ -1,181 +1,238 @@
-# Cimsho — Client-Side MVC Application
+# 🛍️ Cimsho — Bangladesh E-Commerce Platform
 
-A professional PHP MVC client-side application for the Cimsho e-commerce platform.
-Built with **PHP**, **Tailwind CSS**, **JavaScript**, and a clean MVC architecture.
+A full-stack PHP MVC e-commerce system built for Bangladesh, with a complete **Client Storefront** and **Admin Panel**.
 
 ---
 
-## Project Structure
+## 🚀 Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Backend | PHP 8+ (MVC architecture) |
+| Database | MySQL / MariaDB |
+| Frontend | HTML5, Tailwind CSS CDN, Vanilla JavaScript |
+| Font | Trebuchet MS |
+| Server | Apache with mod_rewrite |
+
+---
+
+## 📁 Project Structure
 
 ```
 cimsho/
-├── app/
-│   ├── controllers/        # Controllers (one per feature)
-│   │   ├── AuthController.php
-│   │   ├── HomeController.php
-│   │   └── AccountController.php
-│   ├── models/             # Models (database access)
-│   │   ├── UserModel.php
-│   │   └── ProductModel.php
-│   └── views/              # Views (HTML templates)
-│       ├── auth/
-│       │   ├── login.php
-│       │   └── register.php
-│       ├── home/
-│       │   └── index.php
-│       ├── account/
-│       │   └── index.php
-│       ├── pages/
-│       │   └── _template.php   ← Copy this to add new pages
-│       └── partials/
-│           ├── head.php        ← HTML <head> + Tailwind
-│           ├── navbar.php      ← Top navigation bar
-│           ├── footer.php      ← Footer
-│           ├── flash.php       ← Flash messages
-│           └── 404.php         ← 404 error page
+├── public/                    ← Web root (point Apache/Nginx here)
+│   ├── index.php              ← Application entry point
+│   ├── .htaccess              ← URL rewriting rules
+│   └── assets/
+│       └── images/
+│           ├── placeholder.svg
+│           └── products/      ← Uploaded product images go here
+│
 ├── config/
-│   ├── app.php             # App constants (URL, paths)
-│   └── database.php        # DB credentials
+│   └── database.php           ← DB credentials & BASE_URL
+│
 ├── core/
-│   ├── Database.php        # PDO singleton
-│   ├── Router.php          # URL router
-│   ├── Controller.php      # Base controller
-│   └── Model.php           # Base model
-├── public/
-│   ├── index.php           # Front controller (entry point)
-│   ├── .htaccess           # Pretty URL rewriting
-│   ├── css/                # Custom stylesheets (if any)
-│   ├── js/                 # Custom scripts (if any)
-│   └── assets/             # Images, icons, etc.
-└── .htaccess               # Root redirect to public/
+│   ├── Database.php           ← Singleton DB wrapper (MySQLi)
+│   ├── Controller.php         ← Base controller
+│   ├── Model.php              ← Base model
+│   └── Router.php             ← URL router with regex params
+│
+├── routes/
+│   └── web.php                ← All client + admin routes
+│
+├── app/
+│   ├── controllers/           ← All controllers
+│   │   ├── HomeController.php
+│   │   ├── ShopController.php
+│   │   ├── CartController.php
+│   │   ├── CheckoutController.php
+│   │   ├── AuthController.php
+│   │   ├── AccountController.php
+│   │   ├── AdminControllers.php  ← All admin controllers
+│   │   └── BaseAdminController.php
+│   │
+│   ├── models/
+│   │   ├── ProductModel.php
+│   │   └── Models.php         ← OrderModel, UserModel, CategoryModel, CouponModel, etc.
+│   │
+│   └── views/
+│       ├── client/            ← Client-facing pages
+│       │   ├── partials/      ← header.php, footer.php, product-card.php
+│       │   ├── home.php
+│       │   ├── shop.php
+│       │   ├── product.php
+│       │   ├── cart.php
+│       │   ├── checkout.php
+│       │   ├── login.php
+│       │   ├── register.php
+│       │   ├── order-success.php
+│       │   └── account/       ← orders, order-detail, profile, addresses
+│       │
+│       └── admin/             ← Admin panel pages
+│           ├── partials/      ← header.php, footer.php
+│           ├── login.php
+│           ├── dashboard.php
+│           ├── products/      ← index.php, form.php
+│           ├── categories/
+│           ├── orders/        ← index.php, detail.php
+│           ├── coupons/
+│           ├── customers/
+│           ├── settings/
+│           └── reviews/
+│
+├── setup_seed.sql             ← Run this after DB import
+└── README.md
 ```
 
 ---
 
-## Setup
+## ⚙️ Installation
 
-### 1. Database
-- Import `cimsho.sql` into MySQL/MariaDB
-- Database name: `cimsho`
+### Step 1 — Clone / Copy Project
+Place the `cimsho/` folder in your web server root:
+- XAMPP: `C:/xampp/htdocs/cimsho/`
+- WAMP:  `C:/wamp64/www/cimsho/`
+- Linux: `/var/www/html/cimsho/`
 
-### 2. Configuration
+### Step 2 — Database Setup
+1. Open **phpMyAdmin** → Create database: `cimsho`
+2. Import `cimsho_db__.sql` (the schema file)
+3. Import `setup_seed.sql` (demo data + admin account)
+
+### Step 3 — Configure
 Edit `config/database.php`:
 ```php
 define('DB_HOST', 'localhost');
+define('DB_USER', 'root');       // your MySQL username
+define('DB_PASS', '');           // your MySQL password
 define('DB_NAME', 'cimsho');
-define('DB_USER', 'root');   // your MySQL user
-define('DB_PASS', '');        // your MySQL password
+define('BASE_URL', 'http://localhost/cimsho/public');
+define('SITE_NAME', 'Cimsho');
 ```
 
-Edit `config/app.php`:
-```php
-define('APP_URL', 'http://localhost/cimsho/public');
-define('PRODUCT_IMAGE_BASE', 'http://localhost/admin/public/productImage/');
+### Step 4 — Enable mod_rewrite
+Make sure Apache `mod_rewrite` is enabled and `.htaccess` is allowed (`AllowOverride All`).
+
+In `httpd.conf` or virtual host config:
+```apache
+<Directory "/xampp/htdocs/cimsho/public">
+    AllowOverride All
+</Directory>
 ```
 
-### 3. Web Server
-- Place the `cimsho/` folder in your web root (e.g., `htdocs/` or `www/`)
-- Enable `mod_rewrite` in Apache
-- Visit: `http://localhost/cimsho/`
-
----
-
-## Adding a New Page
-
-### Step 1 — Copy the template view
-```
-app/views/pages/_template.php  →  app/views/pages/about.php
-```
-
-### Step 2 — Create the controller
-```php
-// app/controllers/PageController.php
-require_once APP_ROOT . '/core/Controller.php';
-
-class PageController extends Controller {
-    public function about(): void {
-        $this->view('pages.about', [
-            'title' => 'About Us',
-        ]);
-    }
-}
-```
-
-### Step 3 — Register the route in `public/index.php`
-```php
-$router->get('/about', 'PageController', 'about');
-```
-
-### Step 4 — Done! Visit `/about`
-
----
-
-## Authentication
-
-| Route       | Method | Action                        |
-|-------------|--------|-------------------------------|
-| `/register` | GET    | Show signup form              |
-| `/register` | POST   | Create account + auto-login   |
-| `/login`    | GET    | Show login form               |
-| `/login`    | POST   | Authenticate user             |
-| `/logout`   | POST   | Destroy session + redirect    |
-| `/account`  | GET    | Protected profile page        |
-
-### Session Variables (after login)
-```
-$_SESSION['user_id']    — int
-$_SESSION['user_name']  — string
-$_SESSION['user_email'] — string
-```
-
-### Protect a route in a controller
-```php
-public function index(): void {
-    $this->requireAuth();  // redirects to /login if not logged in
-    // ... your code
-}
+### Step 5 — Image Upload Permissions
+Make sure the uploads directory is writable:
+```bash
+chmod 755 public/assets/images/products/
 ```
 
 ---
 
-## URL Routing
+## 🔐 Default Login Credentials
 
-Routes are registered in `public/index.php`:
+### 🛡️ Admin Panel
+| Field | Value |
+|---|---|
+| URL | `http://localhost/cimsho/public/admin/login` |
+| Username | `admin` |
+| Password | `admin123` |
 
-```php
-// Static route
-$router->get('/contact', 'PageController', 'contact');
-$router->post('/contact', 'PageController', 'sendContact');
-
-// Dynamic route with parameter
-$router->get('/product/{id}', 'ProductController', 'show');
-// Accessed in controller as: public function show(string $id): void
-```
-
----
-
-## Design System
-
-The UI uses **Tailwind CSS** (CDN) with a custom brand palette:
-
-| Token          | Value     |
-|----------------|-----------|
-| `brand-500`    | `#d4842a` (primary amber-gold) |
-| `brand-600`    | `#b86820` |
-| Font (headings)| Playfair Display (serif) |
-| Font (body)    | Inter (sans-serif) |
-
-CSS helper classes:
-- `.btn-brand` — gradient CTA button
-- `.card-hover` — lift-on-hover card effect
-- `.hero-gradient` — dark hero background
+### 👤 Demo Customer
+| Field | Value |
+|---|---|
+| URL | `http://localhost/cimsho/public/login` |
+| Email | `demo@cimsho.com` |
+| Password | `demo1234` |
 
 ---
 
-## Product Images
+## 🎯 Features
 
-Images are served from the admin panel's folder:
-```
-http://localhost/admin/public/productImage/{image_filename}
-```
-The constant `PRODUCT_IMAGE_BASE` in `config/app.php` controls this path.
+### 🛒 Client Storefront
+- **Homepage** — Hero banner, featured products, categories, new arrivals
+- **Shop** — Product grid with category/subcategory filters + pagination
+- **Product Page** — Multiple images, size/color selector, reviews, related products
+- **Cart** — Real-time updates, coupon code support, quantity control
+- **Checkout** — Address management, delivery type (inside/outside Dhaka), payment methods
+- **Order Success** — Order confirmation with item summary
+- **Account** — My Orders, Order Detail with timeline, Profile, Addresses
+- **Auth** — Login / Register with session management
+- **Search** — Full-text product search
+
+### 🔧 Admin Panel
+- **Dashboard** — Stats (orders, revenue, customers, products), recent orders
+- **Products** — CRUD with sizes, colors, multiple images, featured toggle
+- **Categories** — Create/edit/delete with subcategories
+- **Orders** — List with status filter, detail view, status update with notes
+- **Customers** — List with order count, customer detail view
+- **Coupons** — Create/delete coupons with % discount, min order, expiry
+- **Reviews** — View and delete customer reviews
+- **Settings** — Delivery charges (inside/outside Dhaka, free delivery threshold)
+
+### 🇧🇩 Bangladesh-Specific
+- **BDT (৳)** currency throughout
+- **bKash, Nagad, Card, COD** payment methods
+- Inside Dhaka / Outside Dhaka delivery pricing
+- 64 districts delivery coverage
+- Local phone number formats (01X XXXXXXXX)
+
+---
+
+## 🗄️ Database Tables
+
+| Table | Purpose |
+|---|---|
+| `admins` | Admin users |
+| `users` | Customer accounts |
+| `user_addresses` | Saved delivery addresses |
+| `categories` | Main product categories |
+| `sub_categories` | Sub-categories linked to categories |
+| `products` | Product catalog |
+| `product_sizes` | Size variants with pricing |
+| `product_colors` | Color variants |
+| `product_images` | Product image gallery |
+| `product_reviews` | Customer reviews & ratings |
+| `orders` | Order master records |
+| `order_items` | Items within each order |
+| `order_status_log` | Order tracking timeline |
+| `payments` | Payment records |
+| `coupons` | Discount coupon codes |
+| `delivery_settings` | Delivery charge configuration |
+| `shop_settings` | General shop settings |
+| `site_settings` | Site-wide settings |
+
+---
+
+## 🎨 Sample Coupon Codes
+| Code | Discount | Min Order |
+|---|---|---|
+| `WELCOME10` | 10% off | ৳500 |
+| `SAVE20` | 20% off | ৳1,500 |
+| `EID2026` | 15% off | ৳1,000 |
+
+---
+
+## 📦 Extending the Project
+
+### Adding a new page
+1. Create a route in `routes/web.php`
+2. Create a controller in `app/controllers/`
+3. Create a view in `app/views/client/` or `app/views/admin/`
+
+### Adding a new model
+1. Create a class in `app/models/` extending `Model`
+2. All models are auto-loaded from the models directory
+
+---
+
+## 🔒 Security Notes
+- Passwords hashed with `password_hash()` (bcrypt)
+- All DB queries use prepared statements
+- User input sanitized with `htmlspecialchars()` + `strip_tags()`
+- Session-based authentication for both admin and users
+- Admin routes require `$_SESSION['admin_id']`
+- User routes require `$_SESSION['user_id']`
+
+---
+
+*Built with ❤️ for Bangladesh 🇧🇩*

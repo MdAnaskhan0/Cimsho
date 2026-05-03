@@ -1,53 +1,16 @@
 <?php
-// ═══════════════════════════════════════════════
-// Cimsho — Client-Side Front Controller
-// public/index.php
-// ═══════════════════════════════════════════════
-
 session_start();
+define('BASE_PATH', dirname(__DIR__));
 
-// ── Bootstrap ────────────────────────────────────
-require_once __DIR__ . '/../config/app.php';
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../core/Database.php';
-require_once __DIR__ . '/../core/Model.php';
-require_once __DIR__ . '/../core/Controller.php';
-require_once __DIR__ . '/../core/Router.php';
+require BASE_PATH . '/config/database.php';
+require BASE_PATH . '/core/Database.php';
+require BASE_PATH . '/core/Model.php';
+require BASE_PATH . '/core/Controller.php';
+require BASE_PATH . '/core/Router.php';
 
-// ── Router ───────────────────────────────────────
+// Autoload models
+foreach (glob(BASE_PATH . '/app/models/*.php') as $model) require $model;
+
 $router = new Router();
-
-// ── Public Routes ────────────────────────────────
-$router->get('/',          'HomeController',    'index');
-
-// Auth
-$router->get('/login',     'AuthController',    'loginForm');
-$router->post('/login',    'AuthController',    'login');
-$router->get('/register',  'AuthController',    'registerForm');
-$router->post('/register', 'AuthController',    'register');
-$router->post('/logout',   'AuthController',    'logout');
-
-// Account (protected)
-$router->get('/account',   'AccountController', 'index');
-
-// ── TEMPLATE: Add new routes here ────────────────
-// $router->get('/products',          'ProductController',  'index');
-// $router->get('/product/{id}',      'ProductController',  'show');
-// $router->get('/categories',        'CategoryController', 'index');
-// $router->get('/cart',              'CartController',     'index');
-// $router->post('/cart/add',         'CartController',     'add');
-// $router->get('/checkout',          'CheckoutController', 'index');
-// $router->post('/checkout',         'CheckoutController', 'place');
-// $router->get('/orders',            'OrderController',    'index');
-// $router->get('/orders/{number}',   'OrderController',    'show');
-// $router->get('/about',             'PageController',     'about');
-// $router->get('/contact',           'PageController',     'contact');
-// $router->post('/contact',          'PageController',     'sendContact');
-// $router->get('/account/edit',      'AccountController',  'edit');
-// $router->post('/account/edit',     'AccountController',  'update');
-// $router->get('/account/addresses', 'AccountController',  'addresses');
-// $router->get('/account/password',  'AccountController',  'passwordForm');
-// $router->post('/account/password', 'AccountController',  'updatePassword');
-// ─────────────────────────────────────────────────
-
-$router->dispatch();
+require BASE_PATH . '/routes/web.php';
+$router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

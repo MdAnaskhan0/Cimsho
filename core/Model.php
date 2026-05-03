@@ -1,26 +1,27 @@
 <?php
 class Model {
-    protected PDO $db;
+    protected $db;
+    protected $table;
 
     public function __construct() {
         $this->db = Database::getInstance();
     }
 
-    protected function query(string $sql, array $params = []): PDOStatement {
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($params);
-        return $stmt;
+    public function find($id, $pk = 'id') {
+        return $this->db->fetchOne("SELECT * FROM {$this->table} WHERE {$pk} = ?", [$id], 'i');
     }
 
-    protected function fetchAll(string $sql, array $params = []): array {
-        return $this->query($sql, $params)->fetchAll();
+    public function all($where = '', $params = [], $types = '', $order = '') {
+        $sql = "SELECT * FROM {$this->table}";
+        if ($where) $sql .= " WHERE $where";
+        if ($order) $sql .= " ORDER BY $order";
+        return $this->db->fetchAll($sql, $params, $types);
     }
 
-    protected function fetchOne(string $sql, array $params = []): mixed {
-        return $this->query($sql, $params)->fetch();
-    }
-
-    protected function lastInsertId(): string {
-        return $this->db->lastInsertId();
+    public function count($where = '', $params = [], $types = '') {
+        $sql = "SELECT COUNT(*) as cnt FROM {$this->table}";
+        if ($where) $sql .= " WHERE $where";
+        $row = $this->db->fetchOne($sql, $params, $types);
+        return $row['cnt'] ?? 0;
     }
 }

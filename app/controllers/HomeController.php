@@ -1,26 +1,16 @@
 <?php
-require_once APP_ROOT . '/core/Controller.php';
-require_once APP_ROOT . '/app/models/ProductModel.php';
+require_once BASE_PATH . '/app/controllers/BaseClientController.php';
 
-class HomeController extends Controller
-{
-
-    private ProductModel $productModel;
-
-    public function __construct()
-    {
-        $this->productModel = new ProductModel();
-    }
-
-    public function index(): void
-    {
-        $featured   = $this->productModel->getFeatured(8);
-        $categories = $this->productModel->getCategories();
-
-        $this->view('home.index', [
-            'title'      => 'Home',
-            'featured'   => $featured,
-            'categories' => $categories,
-        ]);
+class HomeController extends BaseClientController {
+    public function index() {
+        $products = new ProductModel();
+        $categories = new CategoryModel();
+        $data = [
+            'featured' => $products->getFeatured(8),
+            'latest' => $products->getLatest(8),
+            'categories' => $categories->getWithSubcategories(),
+            'pageTitle' => 'Home'
+        ];
+        $this->clientView('home', $data);
     }
 }

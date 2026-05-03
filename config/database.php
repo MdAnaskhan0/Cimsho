@@ -1,6 +1,7 @@
 <?php
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'cimsho');
 define('DB_USER', 'root');
 define('DB_PASS', '');
-define('DB_CHARSET', 'utf8mb4');
+define('DB_NAME', 'cimsho');
+define('BASE_URL', 'http://localhost/cimsho/public');
+define('SITE_NAME', 'Cimsho');
